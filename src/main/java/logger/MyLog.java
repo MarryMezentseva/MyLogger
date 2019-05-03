@@ -1,24 +1,27 @@
 package logger;
 
-import java.util.Date;
+import java.sql.Timestamp;
 
 public class MyLog {
     private MyLog() {
     }
 
-    public static final MyLog INSTANCE = new MyLog();
+    private static final MyLog INSTANCE = new MyLog();
 
+    public static MyLog getINSTANCE() {
+        return INSTANCE;
+    }
 
     public void logInfo(Object msg) {
-        System.out.println(new Date().toString() + " INFO [" + INSTANCE + "] - " + msg);
+        System.out.println(new Timestamp(System.currentTimeMillis()) + " INFO " + msg);
 
     }
 
     public void logWarning(Object msg) {
-        System.out.println(new Date().toString() + " WARNING [" + INSTANCE + "] - " + msg);
+        System.out.println(new Timestamp(System.currentTimeMillis()) + " WARNING " + msg);
     }
 
     public void logError(Object msg) {
-        System.out.println(new Date().toString() + " ERROR [" + INSTANCE + "] - " + msg);
+        System.out.println(new Timestamp(System.currentTimeMillis()) + " ERROR " + msg);
     }
 }
