@@ -8,7 +8,7 @@ public class MyLog {
 
     private static final MyLog INSTANCE = new MyLog();
 
-    public static MyLog getINSTANCE() {
+    public static MyLog getInstance() {
         return INSTANCE;
     }
 
