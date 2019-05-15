@@ -27,6 +27,7 @@
             <scope>test</scope>
         </dependency>
 
+        <!--doubled dependency-->
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>

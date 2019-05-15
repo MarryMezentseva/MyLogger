@@ -1,51 +1,69 @@
 package com.marry.logger;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
+/**
+ *  Create the configuration of logger file  from property file
+ */
 public class Context {
-    private final String propertyPath = "logger.properties";
-    private String fileName;
-    private String filePath;
-    private String info;
-    private String warn;
-    private String err;
-    private FileInputStream inputStream;
+    private static Context contextInstance;
+    private final String PROPERTY_PATH = "logger.properties";
+    private String logFileName = "default.log";
+    private boolean isInfoOn;
+    private boolean isWarnOn;
+    private boolean isErrOn;
+    private boolean isNeedToLogFile;
 
-       public String getFileName() {
-        return fileName;
+    private Context() {
+        init();
     }
 
-    public Context() {
-        try {
-            inputStream = new FileInputStream(propertyPath);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+    /**
+     * @return the instance of Context
+     */
+    public static Context getInstance() {
+        if (contextInstance == null) {
+            contextInstance = new Context();
         }
+        return contextInstance;
+    }
 
+    private void init() {
         Properties property = new Properties();
         try {
+            FileInputStream inputStream = new FileInputStream(PROPERTY_PATH);
             property.load(inputStream);
+            inputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
         }
 
-        fileName = property.getProperty("file.name");
-        filePath = property.getProperty("file.path");
-        info = property.getProperty("logging.level.info");
-        warn = property.getProperty("logging.level.warn");
-        err = property.getProperty("logging.level.err");
+        this.logFileName = property.getProperty("logging.file.path");
+        this.isInfoOn = Boolean.valueOf(property.getProperty("logging.level.info"));
+        this.isWarnOn = Boolean.valueOf(property.getProperty("logging.level.warn"));
+        this.isErrOn = Boolean.valueOf(property.getProperty("logging.level.err"));
+        this.isNeedToLogFile =  Boolean.valueOf(property.getProperty("logging.file"));
+    }
 
+    public String getLogFileName() {
+        return logFileName;
+    }
+
+    public boolean isInfoOn() {
+        return isInfoOn;
+    }
+
+    public boolean isWarnOn() {
+        return isWarnOn;
+    }
+
+    public boolean isErrOn() {
+        return isErrOn;
+    }
+
+    public boolean isNeedToLogFile() {
+        return isNeedToLogFile;
     }
 }

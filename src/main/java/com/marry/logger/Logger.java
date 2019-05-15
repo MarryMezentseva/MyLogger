@@ -11,11 +11,12 @@ public class Logger {
 
     private static Logger instance;
     private final String logFileName;
+    private static Context context = Context.getInstance();
+    private static final String SPACE = " ";
+
 
     private Logger() {
-        Context context = new Context();
-        this.logFileName = context.getFileName();
-        // this.logFileName = createFileName();
+        this.logFileName = context.getLogFileName();
     }
 
     /**
@@ -30,159 +31,187 @@ public class Logger {
         return instance;
     }
 
-    /**
-     * allows us to print actual date and time in ms
-     *
-     * @return
-     */
     private Timestamp getCurrentTime() {
         return new Timestamp(System.currentTimeMillis());
     }
 
+    private void printToConsole(String msg) {
+        System.out.println(msg);
+    }
+
+    private void printToConsole(String msg, Throwable t) {
+        System.out.println(msg);
+    }
+
+
     /**
-     * print  info-message to the console with identifier INFO of the logging level
+     * Print  info-message to the console and to the file,
+     * in accordance with the permission to turn on/off logging to the file
      *
      * @param msg
      */
     public void info(Object msg) {
-        String info = getCurrentTime() + LoggingLevels.INFORMATION + msg;
-        System.out.println(info);
-        printToFile(info);
+        if (context.isInfoOn()) {
+            String info = createFileName() + SPACE + LoggingLevels.INFORMATION + msg + SPACE;
+            printToConsole(info);
+            printToFile(info);
+        }
     }
 
     /**
-     * print stack trace to the console with identifier INFO of the logging level
+     * Print stack trace to the console and to the file
      *
      * @param e
      */
     public void info(Throwable e) {
-        String info = getCurrentTime() + LoggingLevels.INFORMATION + e;
-        System.out.println(info);
-        e.printStackTrace();
-        printToFile(info);
+        if (context.isInfoOn()) {
+            String info = createFileName() + SPACE + LoggingLevels.INFORMATION + e;
+            printToConsole(info, e);
+            e.printStackTrace();
+            printToFile(info);
+        }
     }
 
     /**
-     * print  info-message  and stack trace to the console with identifier INFO of the logging level
+     * Print  info-message  and stack trace to the console and to the file
      *
      * @param msg
      * @param e
      */
     public void info(Object msg, Throwable e) {
-        String info = getCurrentTime() + LoggingLevels.INFORMATION + msg + e;
-        System.out.println(info);
-        e.printStackTrace();
-        printToFile(info);
+        if (context.isInfoOn()) {
+            String info = createFileName() + SPACE + LoggingLevels.INFORMATION + msg + SPACE + e;
+            printToConsole(info, e);
+            e.printStackTrace();
+            printToFile(info);
+        }
     }
 
     /**
-     * print warning-message to the console with identifier WARNING of the logging level
+     * Print warning-message to the console and to the file
      *
      * @param msg
      */
     public void warning(Object msg) {
-        String warning = getCurrentTime() + LoggingLevels.WARNING + msg;
-        System.out.println(warning);
-        printToFile(warning);
+        if (context.isWarnOn()) {
+            String warning = createFileName() + SPACE + LoggingLevels.WARNING + msg + SPACE;
+            printToConsole(warning);
+            printToFile(warning);
+        }
     }
 
     /**
-     * print stack trace to the console with identifier WARNING of the logging level
+     * Print stack trace to the console and to the file
      *
      * @param e
      */
     public void warning(Throwable e) {
-        String warning = getCurrentTime() + LoggingLevels.WARNING + e;
-        System.out.println(warning);
-        e.printStackTrace();
-        printToFile(warning);
+        if (context.isWarnOn()) {
+            String warning = createFileName() + SPACE + LoggingLevels.WARNING + e;
+            printToConsole(warning, e);
+            e.printStackTrace();
+            printToFile(warning);
+        }
     }
 
     /**
-     * print warning-message and stack trace to the console with identifier WARNING of the logging level
+     * Print warning-message and stack trace to the console and to the file
      *
      * @param msg
      * @param e
      */
     public void warning(Object msg, Throwable e) {
-        String warning = getCurrentTime() + LoggingLevels.WARNING + msg + e;
-        System.out.println(warning);
-        e.printStackTrace();
-        printToFile(warning);
+        if (context.isWarnOn()) {
+            String warning = createFileName() + SPACE + LoggingLevels.WARNING + msg + SPACE + e;
+            printToConsole(warning, e);
+            e.printStackTrace();
+            printToFile(warning);
+        }
     }
 
     /**
-     * print error-message to the console with identifier ERROR of the logging level
+     * Print error-message to the console and to the file
      *
      * @param msg
      */
     public void error(Object msg) {
-        String error =  getCurrentTime() + LoggingLevels.ERROR + msg;
-        System.out.println(error);
-        printToFile(error);
+        if (context.isErrOn()) {
+            String error = createFileName() + SPACE + LoggingLevels.ERROR + msg;
+            printToConsole(error);
+            printToFile(error);
+        }
     }
 
     /**
-     * print stack trace to the console with identifier ERROR of the logging level
+     * Print stack trace to the console and to the file
      *
      * @param e
      */
     public void error(Throwable e) {
-        String error =  getCurrentTime() + LoggingLevels.ERROR + e;
-        System.out.println(error);
-        e.printStackTrace();
-        printToFile(error);
+        if (context.isErrOn()) {
+            String error = createFileName() + SPACE + LoggingLevels.ERROR + e;
+            printToConsole(error, e);
+            e.printStackTrace();
+            printToFile(error);
+        }
     }
 
     /**
-     * print error-message and stack trace to the console with identifier ERROR of the logging level
+     * Print error-message and stack trace to the console and to the file
      *
      * @param e
      * @param msg
      */
     public void error(Object msg, Throwable e) {
-        String error = getCurrentTime() + LoggingLevels.ERROR + msg + e;
-        System.out.println(error);
-        e.printStackTrace();
-        printToFile(error);
-    }
-
-    /**
-     * creating file name
-     */
-    public String createFileName() {
-        String s1 = getCurrentTime().toString().replace(".", "_");
-        String s2 = s1.replace(":", "_");
-        String fileName = s2.replace(" ", "_") + ".log";
-        return fileName;
-    }
-
-    /**
-     * print logging to the file
-     * is used for configuration logger.properties
-     */
-    public void printToFile(String msg) {
-        FileWriter fw = null;
-        try {
-            fw = new FileWriter(logFileName, true);
-        } catch (IOException e) {
+        if (context.isErrOn()) {
+            String error = createFileName() + LoggingLevels.ERROR + msg + SPACE + e;
+            printToConsole(error, e);
             e.printStackTrace();
+            printToFile(error);
         }
-        try {
-            if (fw != null) {
+    }
+
+
+    /**
+     * Creating file name
+     */
+    protected String createFileName() {
+        final String SYMBOL1 = ":";
+        final String SYMBOL2 = ".";
+        final String REPLACEMENT = "_";
+
+        return getCurrentTime().toString().replace(SYMBOL1, REPLACEMENT)
+                .replace(SYMBOL2, REPLACEMENT)
+                .replace(SPACE, REPLACEMENT)
+                + SPACE + context.getLogFileName();
+    }
+
+    /**
+     * Print logging to the file
+     * Is used logger.properties for configuration
+     */
+
+    private void printToFile(String msg) {
+        if (context.isNeedToLogFile()) {
+            try {
+                FileWriter fw = new FileWriter(logFileName, true);
                 fw.write(msg + "\n");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            if (fw != null) {
                 fw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
+    private void printStackTraceToFile() {
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        for (StackTraceElement stackTrace : stackTraceElements) {
+            String msg = stackTrace.getClassName() + SPACE
+                    + stackTrace.getMethodName() + SPACE
+                    + stackTrace.getLineNumber();
+        }
+    }
 }
+
+
 
