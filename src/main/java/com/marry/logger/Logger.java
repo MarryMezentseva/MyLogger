@@ -2,27 +2,26 @@ package com.marry.logger;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.Timestamp;
 
 /**
  * This class logging different states of program according to its logging levels
  */
 public class Logger {
-
+    private final String LOG_FILE_NAME;
+    private static final String WHITESPACE = " ";
     private static Logger instance;
-    private final String logFileName;
-    private static Context context = Context.getInstance();
-    private static final String SPACE = " ";
-
+    private Context context;
 
     private Logger() {
-        this.logFileName = context.getLogFileName();
+        this.context = Context.getInstance();
+        this.LOG_FILE_NAME = context.getLOG_FILE_NAME();
     }
 
     /**
-     * Get the instance of Logger, which is created when it is accessed, not beforehand
-     *
-     * @return
+     * @return the instance of Logger
      */
     public static Logger getInstance() {
         if (instance == null) {
@@ -36,11 +35,13 @@ public class Logger {
     }
 
     private void printToConsole(String msg) {
-        System.out.println(msg);
+        System.out.println(msg + printStackTrace());
+
     }
 
     private void printToConsole(String msg, Throwable t) {
-        System.out.println(msg);
+        System.out.println(msg + printStackTrace());
+        t.printStackTrace();
     }
 
 
@@ -52,7 +53,11 @@ public class Logger {
      */
     public void info(Object msg) {
         if (context.isInfoOn()) {
-            String info = createFileName() + SPACE + LoggingLevels.INFORMATION + msg + SPACE;
+            String info = createFileName()
+                    .concat(LoggingLevels.INFORMATION)
+                    .concat(WHITESPACE)
+                    .concat(msg.toString())
+                    .concat(WHITESPACE);
             printToConsole(info);
             printToFile(info);
         }
@@ -65,10 +70,11 @@ public class Logger {
      */
     public void info(Throwable e) {
         if (context.isInfoOn()) {
-            String info = createFileName() + SPACE + LoggingLevels.INFORMATION + e;
+            String info = createFileName()
+                    .concat(LoggingLevels.INFORMATION)
+                    .concat(WHITESPACE);
             printToConsole(info, e);
-            e.printStackTrace();
-            printToFile(info);
+            printToFile(info, e);
         }
     }
 
@@ -80,10 +86,12 @@ public class Logger {
      */
     public void info(Object msg, Throwable e) {
         if (context.isInfoOn()) {
-            String info = createFileName() + SPACE + LoggingLevels.INFORMATION + msg + SPACE + e;
+            String info = createFileName()
+                    .concat(LoggingLevels.INFORMATION)
+                    .concat(WHITESPACE)
+                    .concat(msg.toString());
             printToConsole(info, e);
-            e.printStackTrace();
-            printToFile(info);
+            printToFile(info, e);
         }
     }
 
@@ -94,7 +102,10 @@ public class Logger {
      */
     public void warning(Object msg) {
         if (context.isWarnOn()) {
-            String warning = createFileName() + SPACE + LoggingLevels.WARNING + msg + SPACE;
+            String warning = createFileName()
+                    .concat(LoggingLevels.WARNING)
+                    .concat(WHITESPACE)
+                    .concat(msg.toString());
             printToConsole(warning);
             printToFile(warning);
         }
@@ -107,10 +118,11 @@ public class Logger {
      */
     public void warning(Throwable e) {
         if (context.isWarnOn()) {
-            String warning = createFileName() + SPACE + LoggingLevels.WARNING + e;
+            String warning = createFileName()
+                    .concat(LoggingLevels.WARNING)
+                    .concat(WHITESPACE);
             printToConsole(warning, e);
-            e.printStackTrace();
-            printToFile(warning);
+            printToFile(warning, e);
         }
     }
 
@@ -122,10 +134,12 @@ public class Logger {
      */
     public void warning(Object msg, Throwable e) {
         if (context.isWarnOn()) {
-            String warning = createFileName() + SPACE + LoggingLevels.WARNING + msg + SPACE + e;
+            String warning = createFileName()
+                    .concat(LoggingLevels.WARNING)
+                    .concat(WHITESPACE)
+                    .concat(msg.toString());
             printToConsole(warning, e);
-            e.printStackTrace();
-            printToFile(warning);
+            printToFile(warning, e);
         }
     }
 
@@ -136,7 +150,10 @@ public class Logger {
      */
     public void error(Object msg) {
         if (context.isErrOn()) {
-            String error = createFileName() + SPACE + LoggingLevels.ERROR + msg;
+            String error = createFileName()
+                    .concat(LoggingLevels.ERROR)
+                    .concat(WHITESPACE)
+                    .concat(msg.toString());
             printToConsole(error);
             printToFile(error);
         }
@@ -149,10 +166,11 @@ public class Logger {
      */
     public void error(Throwable e) {
         if (context.isErrOn()) {
-            String error = createFileName() + SPACE + LoggingLevels.ERROR + e;
+            String error = createFileName()
+                    .concat(LoggingLevels.ERROR)
+                    .concat(WHITESPACE);
             printToConsole(error, e);
-            e.printStackTrace();
-            printToFile(error);
+            printToFile(error, e);
         }
     }
 
@@ -164,13 +182,14 @@ public class Logger {
      */
     public void error(Object msg, Throwable e) {
         if (context.isErrOn()) {
-            String error = createFileName() + LoggingLevels.ERROR + msg + SPACE + e;
+            String error = createFileName()
+                    .concat(LoggingLevels.ERROR)
+                    .concat(WHITESPACE)
+                    .concat(msg.toString());
             printToConsole(error, e);
-            e.printStackTrace();
-            printToFile(error);
+            printToFile(error, e);
         }
     }
-
 
     /**
      * Creating file name
@@ -180,37 +199,68 @@ public class Logger {
         final String SYMBOL2 = ".";
         final String REPLACEMENT = "_";
 
-        return getCurrentTime().toString().replace(SYMBOL1, REPLACEMENT)
+        return getCurrentTime().toString()
+                .replace(SYMBOL1, REPLACEMENT)
                 .replace(SYMBOL2, REPLACEMENT)
-                .replace(SPACE, REPLACEMENT)
-                + SPACE + context.getLogFileName();
+                .replace(WHITESPACE, REPLACEMENT)
+                .concat(WHITESPACE)
+                .concat(context.getLOG_FILE_NAME())
+                .concat(WHITESPACE);
     }
 
-    /**
-     * Print logging to the file
-     * Is used logger.properties for configuration
-     */
-
-    private void printToFile(String msg) {
-        if (context.isNeedToLogFile()) {
+    protected void printToFile(String msg) {
+        if (context.isNeedPrintToLogFile()) {
             try {
-                FileWriter fw = new FileWriter(logFileName, true);
+                FileWriter fw = new FileWriter(LOG_FILE_NAME, true);
                 fw.write(msg + "\n");
                 fw.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
         }
     }
 
-    private void printStackTraceToFile() {
-        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-        for (StackTraceElement stackTrace : stackTraceElements) {
-            String msg = stackTrace.getClassName() + SPACE
-                    + stackTrace.getMethodName() + SPACE
-                    + stackTrace.getLineNumber();
+    protected void printToFile(String msg, Throwable e) {
+        if (context.isNeedPrintToLogFile()) {
+            try {
+                FileWriter fw = new FileWriter(LOG_FILE_NAME, true);
+                fw.write(msg + printStackTrace() + printEStackTrace() + "\n");
+                fw.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
+
+    private String printStackTrace() {
+        String msg = null;
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        for (StackTraceElement stackTrace : stackTraceElements) {
+             msg = " line:".concat(String.valueOf(stackTrace.getLineNumber()))
+                    .concat(WHITESPACE)
+                    .concat(stackTrace.getClassName())
+                    .concat(WHITESPACE)
+                    .concat("#")
+                    .concat(stackTrace.getMethodName())
+                    .concat("()");
+        }
+        return msg;
+    }
+
+
+    private String printEStackTrace() {
+        Throwable e = new Throwable();
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        e.printStackTrace(printWriter);
+        return stringWriter.toString();
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+
 }
 
 

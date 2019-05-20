@@ -5,16 +5,16 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- *  Create the configuration of logger file  from property file
+ *  Create the configuration of logger file from property file
  */
 public class Context {
-    private static Context contextInstance;
     private final String PROPERTY_PATH = "logger.properties";
-    private String logFileName = "default.log";
+    private String LOG_FILE_NAME = "_log.log";
+    private static Context instance;
     private boolean isInfoOn;
     private boolean isWarnOn;
     private boolean isErrOn;
-    private boolean isNeedToLogFile;
+    private boolean isNeedPrintToLogFile;
 
     private Context() {
         init();
@@ -24,10 +24,10 @@ public class Context {
      * @return the instance of Context
      */
     public static Context getInstance() {
-        if (contextInstance == null) {
-            contextInstance = new Context();
+        if (instance == null) {
+            instance = new Context();
         }
-        return contextInstance;
+        return instance;
     }
 
     private void init() {
@@ -40,15 +40,15 @@ public class Context {
             e.printStackTrace();
         }
 
-        this.logFileName = property.getProperty("logging.file.path");
+        LOG_FILE_NAME = property.getProperty("logging.file.path");
         this.isInfoOn = Boolean.valueOf(property.getProperty("logging.level.info"));
         this.isWarnOn = Boolean.valueOf(property.getProperty("logging.level.warn"));
         this.isErrOn = Boolean.valueOf(property.getProperty("logging.level.err"));
-        this.isNeedToLogFile =  Boolean.valueOf(property.getProperty("logging.file"));
+        this.isNeedPrintToLogFile =  Boolean.valueOf(property.getProperty("logging.file"));
     }
 
-    public String getLogFileName() {
-        return logFileName;
+    public String getLOG_FILE_NAME() {
+        return LOG_FILE_NAME;
     }
 
     public boolean isInfoOn() {
@@ -63,7 +63,27 @@ public class Context {
         return isErrOn;
     }
 
-    public boolean isNeedToLogFile() {
-        return isNeedToLogFile;
+    public boolean isNeedPrintToLogFile() {
+        return isNeedPrintToLogFile;
+    }
+
+    public void setLOG_FILE_NAME(String LOG_FILE_NAME) {
+        this.LOG_FILE_NAME = LOG_FILE_NAME;
+    }
+
+    public void setInfoOn(boolean infoOn) {
+        isInfoOn = infoOn;
+    }
+
+    public void setWarnOn(boolean warnOn) {
+        isWarnOn = warnOn;
+    }
+
+    public void setErrOn(boolean errOn) {
+        isErrOn = errOn;
+    }
+
+    public void setNeedPrintToLogFile(boolean needPrintToLogFile) {
+        isNeedPrintToLogFile = needPrintToLogFile;
     }
 }

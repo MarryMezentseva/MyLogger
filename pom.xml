@@ -26,15 +26,12 @@
             <version>6.14.3</version>
             <scope>test</scope>
         </dependency>
-
-        <!--doubled dependency-->
         <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>6.14.3</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>1.3.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 
 </project>
