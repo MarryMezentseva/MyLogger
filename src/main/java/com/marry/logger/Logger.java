@@ -44,7 +44,6 @@ public class Logger {
         t.printStackTrace();
     }
 
-
     /**
      * Print  info-message to the console and to the file,
      * in accordance with the permission to turn on/off logging to the file
