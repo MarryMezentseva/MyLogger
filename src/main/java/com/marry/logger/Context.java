@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- *  Create the configuration of logger file from property file
+ * Create the configuration of logger file from property file
  */
 public class Context {
     private final String PROPERTY_PATH = "logger.properties";
-    private String LOG_FILE_NAME = "_log.log";
+    private String logFileName = "_log.log";
     private static Context instance;
     private boolean isInfoOn;
     private boolean isWarnOn;
@@ -40,15 +40,31 @@ public class Context {
             e.printStackTrace();
         }
 
-        LOG_FILE_NAME = property.getProperty("logging.file.path");
-        this.isInfoOn = Boolean.valueOf(property.getProperty("logging.level.info"));
-        this.isWarnOn = Boolean.valueOf(property.getProperty("logging.level.warn"));
-        this.isErrOn = Boolean.valueOf(property.getProperty("logging.level.err"));
-        this.isNeedPrintToLogFile =  Boolean.valueOf(property.getProperty("logging.file"));
+        logFileName = createFileNameSuffix().concat(property.getProperty("logging.file.path"));
+        isInfoOn = Boolean.valueOf(property.getProperty("logging.level.info"));
+        isWarnOn = Boolean.valueOf(property.getProperty("logging.level.warn"));
+        isErrOn = Boolean.valueOf(property.getProperty("logging.level.err"));
+        isNeedPrintToLogFile = Boolean.valueOf(property.getProperty("logging.file"));
     }
 
-    public String getLOG_FILE_NAME() {
-        return LOG_FILE_NAME;
+    /**
+     * Creating file name suffix
+     */
+    protected String createFileNameSuffix() {
+        final String SYMBOL1 = ":";
+        final String SYMBOL2 = ".";
+        final String REPLACEMENT = "_";
+        final String WHITESPACE = " ";
+
+        return Logger.getCurrentTime().toString()
+                .replace(SYMBOL1, REPLACEMENT)
+                .replace(SYMBOL2, REPLACEMENT)
+                .replace(WHITESPACE, REPLACEMENT)
+                .concat(WHITESPACE);
+    }
+
+    public String getLogFileName() {
+        return logFileName;
     }
 
     public boolean isInfoOn() {
@@ -67,8 +83,8 @@ public class Context {
         return isNeedPrintToLogFile;
     }
 
-    public void setLOG_FILE_NAME(String LOG_FILE_NAME) {
-        this.LOG_FILE_NAME = LOG_FILE_NAME;
+    public void setLogFileName(String logFileName) {
+        this.logFileName = logFileName;
     }
 
     public void setInfoOn(boolean infoOn) {

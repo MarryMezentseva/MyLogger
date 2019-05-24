@@ -23,71 +23,103 @@ public class LoggerTest {
     }
 
     @Test
-    public void testInfo() {
+    public void testInfo() throws IOException {
         log.info("some information ");
         log.info("some information///// ");
         log.info("some information.,.,.,. ");
+        List lines = FileUtils.readLines(new File(log.getContext().getLogFileName()), "utf-8");
+        assertTrue(lines.size() > 0);
+        assertTrue(lines.get(1).toString().contains("INFO"));
     }
 
     @Test
     public void testWarning() {
         log.getContext().setNeedPrintToLogFile(false);
-        log.warning("this is a warning");
-        assertFalse(log.getContext().getLOG_FILE_NAME().contains("warning"));
+        log.warning("there we need not to print to file");
+        assertFalse(new File(log.getContext().getLogFileName()).exists());
     }
 
     @Test
-    public void testError() {
+    public void testWarningOff() {
+        log.getContext().setWarnOn(false);
+        log.warning("this message are not printed anywhere");
+        assertFalse(new File(log.getContext().getLogFileName()).exists());
+       }
+
+    @Test
+    public void testError() throws IOException {
         log.error("error!!!!!!!");
-
+        List lines = FileUtils.readLines(new File(log.getContext().getLogFileName()), "utf-8");
+        assertTrue(lines.size() > 0);
+        assertTrue(lines.get(0).toString().contains("ERROR"));
     }
 
     @Test
-    public void testInfoThrowable() {
+    public void testInfoThrowable() throws IOException {
         log.info("here is RuntimeException: ", new RuntimeException());
         log.info(new Exception());
+        List lines = FileUtils.readLines(new File(log.getContext().getLogFileName()), "utf-8");
+        assertTrue(lines.size() > 0);
+        assertTrue(lines.get(0).toString().contains("INFO"));
     }
 
     @Test
-    public void testInfoThrowableAndObject() {
+    public void testInfoThrowableAndObject() throws IOException {
         log.info("error!", new Error());
+        List lines = FileUtils.readLines(new File(log.getContext().getLogFileName()), "utf-8");
+        assertTrue(lines.size() > 0);
+        assertTrue(lines.get(0).toString().contains("INFO"));
     }
 
     @Test
-    public void testWarningThrowable() {
+    public void testWarningThrowable() throws IOException {
+        log.getContext().setNeedPrintToLogFile(true);
         log.warning(new Exception());
+        log.warning(new RuntimeException());
+        log.warning(new RuntimeException());
+        List lines = FileUtils.readLines(new File(log.getContext().getLogFileName()), "utf-8");
+        assertTrue(lines.size() > 0);
+        assertTrue(lines.get(0).toString().contains("WARNING"));
     }
 
     @Test
-    public void testWarningThrowableAndObject() {
+    public void testWarningThrowableAndObject() throws IOException {
+        log.getContext().setNeedPrintToLogFile(true);
         log.warning("this is RunTimeException", new RuntimeException());
         log.warning("oh,no! at once... ", new Exception());
-        System.out.println();
+        List lines = FileUtils.readLines(new File(log.getContext().getLogFileName()), "utf-8");
+        assertTrue(lines.size() > 0);
+        assertTrue(lines.get(0).toString().contains("WARNING"));
     }
 
     @Test
-    public void testErrorThrowable() {
-        log.error(new Exception());
+    public void testErrorThrowable() throws IOException {
+        log.error(new Error());
+        List lines = FileUtils.readLines(new File(log.getContext().getLogFileName()), "utf-8");
+        assertTrue(lines.size() > 0);
+        assertTrue(lines.get(0).toString().contains("ERROR"));
     }
 
     @Test
-    public void testErrorThrowableAndObject() {
+    public void testErrorThrowableAndObject() throws IOException {
         log.error("this is error1_", new Error());
-        log.error("this is error2_", new RuntimeException());
+        log.error("this is error2_", new Error());
+        List lines = FileUtils.readLines(new File(log.getContext().getLogFileName()), "utf-8");
+        assertTrue(lines.size() > 0);
+        assertTrue(lines.get(0).toString().contains("ERROR"));
     }
 
     @Test
-    public void testCreateFileName() {
-        assertNotNull(log.createFileName());
-        assertTrue(log.createFileName().contains("masha"));
+    public void testCreateFileNameSuffix() {
+        assertNotNull(log.getContext().createFileNameSuffix());
+        assertTrue(log.getContext().createFileNameSuffix().contains("2019"));
     }
 
     @AfterMethod
-    public void deleteFiles() throws IOException {
-        File file = new File("masha.log");
-        List lines = FileUtils.readLines(file, "utf-8");
-        if (lines.size() > 0){
-        file.delete();
+    public void after() {
+        File file = new File(log.getContext().getLogFileName());
+        if (file.exists()) {
+            file.delete();
         }
     }
 }

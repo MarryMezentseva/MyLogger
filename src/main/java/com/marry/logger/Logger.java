@@ -1,9 +1,6 @@
 package com.marry.logger;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.sql.Timestamp;
 
 /**
@@ -17,7 +14,7 @@ public class Logger {
 
     private Logger() {
         this.context = Context.getInstance();
-        this.LOG_FILE_NAME = context.getLOG_FILE_NAME();
+        this.LOG_FILE_NAME = context.getLogFileName();
     }
 
     /**
@@ -30,7 +27,7 @@ public class Logger {
         return instance;
     }
 
-    private Timestamp getCurrentTime() {
+    protected static Timestamp getCurrentTime() {
         return new Timestamp(System.currentTimeMillis());
     }
 
@@ -52,11 +49,9 @@ public class Logger {
      */
     public void info(Object msg) {
         if (context.isInfoOn()) {
-            String info = createFileName()
-                    .concat(LoggingLevels.INFORMATION)
+            String info = LoggingLevels.INFORMATION
                     .concat(WHITESPACE)
-                    .concat(msg.toString())
-                    .concat(WHITESPACE);
+                    .concat(msg.toString());
             printToConsole(info);
             printToFile(info);
         }
@@ -69,8 +64,7 @@ public class Logger {
      */
     public void info(Throwable e) {
         if (context.isInfoOn()) {
-            String info = createFileName()
-                    .concat(LoggingLevels.INFORMATION)
+            String info = LoggingLevels.INFORMATION
                     .concat(WHITESPACE);
             printToConsole(info, e);
             printToFile(info, e);
@@ -85,8 +79,7 @@ public class Logger {
      */
     public void info(Object msg, Throwable e) {
         if (context.isInfoOn()) {
-            String info = createFileName()
-                    .concat(LoggingLevels.INFORMATION)
+            String info = LoggingLevels.INFORMATION
                     .concat(WHITESPACE)
                     .concat(msg.toString());
             printToConsole(info, e);
@@ -101,8 +94,7 @@ public class Logger {
      */
     public void warning(Object msg) {
         if (context.isWarnOn()) {
-            String warning = createFileName()
-                    .concat(LoggingLevels.WARNING)
+            String warning = LoggingLevels.WARNING
                     .concat(WHITESPACE)
                     .concat(msg.toString());
             printToConsole(warning);
@@ -117,8 +109,7 @@ public class Logger {
      */
     public void warning(Throwable e) {
         if (context.isWarnOn()) {
-            String warning = createFileName()
-                    .concat(LoggingLevels.WARNING)
+            String warning = LoggingLevels.WARNING
                     .concat(WHITESPACE);
             printToConsole(warning, e);
             printToFile(warning, e);
@@ -133,8 +124,7 @@ public class Logger {
      */
     public void warning(Object msg, Throwable e) {
         if (context.isWarnOn()) {
-            String warning = createFileName()
-                    .concat(LoggingLevels.WARNING)
+            String warning = LoggingLevels.WARNING
                     .concat(WHITESPACE)
                     .concat(msg.toString());
             printToConsole(warning, e);
@@ -149,8 +139,7 @@ public class Logger {
      */
     public void error(Object msg) {
         if (context.isErrOn()) {
-            String error = createFileName()
-                    .concat(LoggingLevels.ERROR)
+            String error = LoggingLevels.ERROR
                     .concat(WHITESPACE)
                     .concat(msg.toString());
             printToConsole(error);
@@ -165,8 +154,7 @@ public class Logger {
      */
     public void error(Throwable e) {
         if (context.isErrOn()) {
-            String error = createFileName()
-                    .concat(LoggingLevels.ERROR)
+            String error = LoggingLevels.ERROR
                     .concat(WHITESPACE);
             printToConsole(error, e);
             printToFile(error, e);
@@ -181,30 +169,12 @@ public class Logger {
      */
     public void error(Object msg, Throwable e) {
         if (context.isErrOn()) {
-            String error = createFileName()
-                    .concat(LoggingLevels.ERROR)
+            String error = LoggingLevels.ERROR
                     .concat(WHITESPACE)
                     .concat(msg.toString());
             printToConsole(error, e);
             printToFile(error, e);
         }
-    }
-
-    /**
-     * Creating file name
-     */
-    protected String createFileName() {
-        final String SYMBOL1 = ":";
-        final String SYMBOL2 = ".";
-        final String REPLACEMENT = "_";
-
-        return getCurrentTime().toString()
-                .replace(SYMBOL1, REPLACEMENT)
-                .replace(SYMBOL2, REPLACEMENT)
-                .replace(WHITESPACE, REPLACEMENT)
-                .concat(WHITESPACE)
-                .concat(context.getLOG_FILE_NAME())
-                .concat(WHITESPACE);
     }
 
     protected void printToFile(String msg) {
@@ -232,18 +202,14 @@ public class Logger {
     }
 
     private String printStackTrace() {
-        String msg = null;
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-        for (StackTraceElement stackTrace : stackTraceElements) {
-             msg = " line:".concat(String.valueOf(stackTrace.getLineNumber()))
-                    .concat(WHITESPACE)
-                    .concat(stackTrace.getClassName())
-                    .concat(WHITESPACE)
-                    .concat("#")
-                    .concat(stackTrace.getMethodName())
-                    .concat("()");
-        }
-        return msg;
+        return " line:".concat(String.valueOf(stackTraceElements[4].getLineNumber()))
+                .concat(WHITESPACE)
+                .concat(stackTraceElements[4].getClassName())
+                .concat(WHITESPACE)
+                .concat("#")
+                .concat(stackTraceElements[4].getMethodName())
+                .concat("()");
     }
 
 
